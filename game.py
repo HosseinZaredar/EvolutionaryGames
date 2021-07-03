@@ -80,6 +80,7 @@ class Game():
 
         game_speed = 1
         t = time.time() - CONFIG['box_gap'] / (game_speed * CONFIG['camera_speed'])
+        show_fps = False
 
         show_single = False  # shows only a single agent of the current generation, if True
 
@@ -102,8 +103,10 @@ class Game():
                         game_speed = 2 if game_speed == 1 else 1
                     elif event.key == pygame.K_s:
                         show_single = not show_single
+                    elif event.key == pygame.K_f:
+                        show_fps = not show_fps
 
-            clock.tick(game_speed * CONFIG['fps'])
+            dt = clock.tick(game_speed * CONFIG['fps'])
             self.camera += CONFIG['camera_speed']
 
             # generates new obstacles
@@ -236,6 +239,9 @@ class Game():
                 if game_speed == 2:
                     self.screen.blit(self.speed_font.render('2x', -1, color), (1200, 20))
 
+                if show_fps:
+                    self.screen.blit(self.speed_font.render(f'{str(1000 // (dt * game_speed))}', -1, color), (1200, 650))
+
                 pygame.display.update()
 
             frame_counter = (frame_counter + 1) % game_speed
@@ -254,6 +260,7 @@ class Game():
         random.seed(CONFIG['seed'])
 
         t = time.time() - CONFIG['box_gap'] / CONFIG['camera_speed']
+        show_fps = False
 
         high_score = 0
 
@@ -265,7 +272,12 @@ class Game():
             if keys[pygame.K_ESCAPE]:
                 break
 
-            clock.tick(CONFIG['fps'])
+            for event in events:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_f:
+                        show_fps = not show_fps
+
+            dt = clock.tick(CONFIG['fps'])
             self.camera += CONFIG['camera_speed']
 
             # generates new obstacles
@@ -315,6 +327,9 @@ class Game():
             # rendering stats
             self.screen.blit(self.font.render("High Score: " + str(high_score), -1, color), (25, 20))
             self.screen.blit(self.font.render("Score: " + str(self.camera), -1, color), (25, 60))
+            if show_fps:
+                self.screen.blit(self.speed_font.render(f'{str(1000 // dt)}', -1, color), (1200, 650))
+            
             pygame.display.update()
 
 
